@@ -8,35 +8,50 @@ import java.util.Scanner;
 
 public class App {
     public static void main(String[] args) {
+        /*
+         * protocollo ricezione:
+         * D = disponibilita biglietto
+         * A = acquista biglietto
+         * Q = invodinato
+         * ! = input sbagliato
+         */
         try {
             Socket s = new Socket("localhost", 3000);
 
             BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
 
-            Scanner scan = new Scanner(System.in);
-            System.out.println("Indovina un numero da 1 A 100 generato dal server");
-            for (int i = 0; i < 5; i++) {
-                System.out.println("inserisci numero: ");
+            while(true){
+                Scanner scan = new Scanner(System.in);
+                System.out.println("Cosa vuoi fare?\n'A' = acquisto, 'D' = disponibilita, 'Q' = esci");
+                System.out.println("inserisci selezione: ");
                 String invia = scan.nextLine();
                 out.writeBytes(invia + "\n");
 
                 String r = in.readLine();
 
-                if(r.equals("@")){
-                    System.out.println("Il server ha risposto:  E t'hai sbagliato, il tuo numero l'era minore >:(");
+                if (r.equals("@")) {
+                    System.out.println("Il server ha risposto:\nI biglietti disponibili sono: ");
+                    r = in.readLine();
+                    System.out.println(r);
+                } else if (r.equals("#")) {
+                    System.out.println("Il server ha risposto:\nHai acquistato il biglietto con successo! I biglietti disponibili ora sono: ");
+                    r = in.readLine();
+                    System.out.println(r);
+                } else if (r.equals("+")) {
+                    System.out.println("Il server ha risposto:\nArrivederci e grazie ");
+                    s.close();
+                    break;
+                } else if (r.equals("!")) {
+                    System.out.println("Il server ha risposto:\nI biglietti sono esauriti :( ");
+                    s.close();
+                    break;
+                } else if (r.equals("?")) {
+                    System.out.println("Hai inserito un input non riconosciuto dal server. Riprova.");
                 }
-                else if(r.equals("#")){
-                    System.out.println("Il server ha risposto:  E t'hai sbagliato, il tuo numero l'era maggiore >:(");
-                }
-                else if(r.equals("+")){
-                    System.out.println("Il server ha risposto:  E t'hai indovinato, sei un grande :)");
-                }
-                else if(r.equals("!")){
-                    System.out.println("Il server ha risposto:  ma icche t'hai scritto sei tutto scemo :^");
-                }
+                
             }
-            s.close();
+            //s.close();
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
